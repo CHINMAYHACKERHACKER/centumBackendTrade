@@ -444,7 +444,7 @@ const retrieveAllCharges = async () => {
     } catch (error) {
         console.error('Error retrieving charges:', error);
     }
-    setTimeout(retrieveAllCharges, 1000);
+    // setTimeout(retrieveAllCharges, 1000);
 };
 
 retrieveAllCharges();
