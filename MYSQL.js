@@ -1,11 +1,11 @@
 const mysql = require("mysql");
 require('dotenv').config()
 
-const URLDB = `mysql://${process.env.MYSQLUSER}:${process.env.MYSQLPASSWORD}@${process.env.MYSQLHOST}:${process.env.MYSQLPORT}/${process.env.MYSQLDATABASE}`;
-
 const con = mysql.createConnection({
-    url: URLDB,
-    connectTimeout: 10000, // 10 seconds
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE   
 });
 
 con.connect((err) => {
