@@ -405,12 +405,54 @@ app.post('/api/session', (req, res) => {
 // });
 
 
+// const retrieveAllCharges = async () => {
+//     try {
+//         const charges = await stripe.charges.list();
+//         console.log('Charges:', charges.data);
+
+//         // Extracting required information from charges
+//         const chargeInfo = charges.data.map(charge => {
+//             const { status, amount, id, billing_details } = charge;
+//             const email = billing_details ? billing_details.email : null;
+//             const name = billing_details ? billing_details.name : null;
+//             return { status, amount, id, email, name };
+//         });
+
+//         console.log('Charge Information:', chargeInfo);
+
+//         // Inserting charges into the database
+//         chargeInfo.forEach(charge => {
+//             const { status, amount, id, email, name} = charge;
+//             console.log(email);
+//             const query = `UPDATE charges SET USERPAIDID='${id}', NAME='${name}', AMOUNT='${amount}', EMAIL='${email}', STATUS='${status}' where USEREMAILEMAIL='${email}'`;
+
+//             // Define the values to be used in the query
+//             const values = [id, name, amount, email, status];
+
+//             con.query(query, values, (error, results) => {
+//                 if (error) {
+//                     console.error('Error inserting charge:', error);
+//                 } else {
+//                     // console.log('Charge inserted:', charge);
+//                     console.log('Charge inserted');
+
+//                 }
+//             });
+//         });
+//     } catch (error) {
+//         console.error('Error retrieving charges:', error);
+//     }
+//     setTimeout(retrieveAllCharges, 1000);
+// };
+
+// retrieveAllCharges();
+
+
 const retrieveAllCharges = async () => {
     try {
         const charges = await stripe.charges.list();
         console.log('Charges:', charges.data);
 
-        // Extracting required information from charges
         const chargeInfo = charges.data.map(charge => {
             const { status, amount, id, billing_details } = charge;
             const email = billing_details ? billing_details.email : null;
@@ -420,29 +462,44 @@ const retrieveAllCharges = async () => {
 
         console.log('Charge Information:', chargeInfo);
 
-        // Inserting charges into the database
-        chargeInfo.forEach(charge => {
-            const { status, amount, id, email, name} = charge;
+        for (const charge of chargeInfo) {
+            const { status, amount, id, email, name } = charge;
             console.log(email);
             const query = `UPDATE charges SET USERPAIDID='${id}', NAME='${name}', AMOUNT='${amount}', EMAIL='${email}', STATUS='${status}' where USEREMAILEMAIL='${email}'`;
 
-            // Define the values to be used in the query
             const values = [id, name, amount, email, status];
 
-            con.query(query, values, (error, results) => {
-                if (error) {
-                    console.error('Error inserting charge:', error);
-                } else {
-                    // console.log('Charge inserted:', charge);
-                    console.log('Charge inserted');
+            let retryAttempts = 3;
+            let currentAttempt = 0;
 
+            while (currentAttempt < retryAttempts) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        con.query(query, values, (error, results) => {
+                            if (error) {
+                                reject(error);
+                            } else {
+                                resolve();
+                            }
+                        });
+                    });
+                    console.log('Charge inserted');
+                    break; // Exit the retry loop if successful
+                } catch (error) {
+                    if (error.code === 'ETIMEDOUT') {
+                        currentAttempt++;
+                        await new Promise(resolve => setTimeout(resolve, 2000)); // Retry after 2 seconds
+                    } else {
+                        console.error('Error inserting charge:', error);
+                        break; // Exit the retry loop if an unexpected error occurs
+                    }
                 }
-            });
-        });
+            }
+        }
     } catch (error) {
         console.error('Error retrieving charges:', error);
     }
-    // setTimeout(retrieveAllCharges, 1000);
+    setTimeout(retrieveAllCharges, 1000);
 };
 
 retrieveAllCharges();
