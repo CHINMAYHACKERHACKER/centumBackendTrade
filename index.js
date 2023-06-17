@@ -19,9 +19,7 @@ SECRET_KEY = "sk_test_51NI5o0SAzinzFTdr5UshicljwmVZrwfzvFBVOrCg2lMyZcMjj9UphvO0E
 
 const stripe = require('stripe')(SECRET_KEY);
 const cron = require('node-cron');
-
-
-
+require('dotenv').config()
 
 const app = express();
 app.use(express.json());
@@ -581,6 +579,6 @@ app.get('/USERSUBSCRIBEDDATA', (req, res) => {
 
 
 
-app.listen(3001, () => {
+app.listen(process.env.PORT, () => {
     console.log("LISTENING TO PORT 3001");
 });
