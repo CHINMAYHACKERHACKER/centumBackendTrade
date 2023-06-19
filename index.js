@@ -29,15 +29,16 @@ app.use("/VIDEO", express.static("./VIDEO"));
 
 app.use(bodyParser.json());
 
-
-
 const accountSid = 'AC6191a6f909440b674500d2eb31bd2786'; // Replace with your Twilio account SID
-const authToken = 'f111833908d76a9ee4f66eb525cfd56f';
+const authToken = '487c62c3d92845b2462879210c115656';
 
 // const CHAT_ENGINE_PROJECT_ID = "7923a155-1379-4fb6-a475-975e98ef3694";
 // const CHAT_ENGINE_PRIVATE_KEY = "5f6597f4-6be4-4137-9ca9-80315afc009b";
 
 const client = twilio(accountSid, authToken);
+
+const otpStorage = {};
+
 
 app.post('/LOGIN', (req, res) => {
     const username = req.body.LOGINUSERNAME;
