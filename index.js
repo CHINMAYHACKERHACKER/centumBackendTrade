@@ -449,61 +449,61 @@ app.post('/api/session', (req, res) => {
 // retrieveAllCharges();
 
 
-// const retrieveAllCharges = async () => {
-//     try {
-//         const charges = await stripe.charges.list();
-//         console.log('Charges:', charges.data);
+const retrieveAllCharges = async () => {
+    try {
+        const charges = await stripe.charges.list();
+        console.log('Charges:', charges.data);
 
-//         const chargeInfo = charges.data.map(charge => {
-//             const { status, amount, id, billing_details } = charge;
-//             const email = billing_details ? billing_details.email : null;
-//             const name = billing_details ? billing_details.name : null;
-//             return { status, amount, id, email, name };
-//         });
+        const chargeInfo = charges.data.map(charge => {
+            const { status, amount, id, billing_details } = charge;
+            const email = billing_details ? billing_details.email : null;
+            const name = billing_details ? billing_details.name : null;
+            return { status, amount, id, email, name };
+        });
 
-//         console.log('Charge Information:', chargeInfo);
+        console.log('Charge Information:', chargeInfo);
 
-//         for (const charge of chargeInfo) {
-//             const { status, amount, id, email, name } = charge;
-//             console.log(email);
-//             const query = `UPDATE charges SET USERPAIDID='${id}', NAME='${name}', AMOUNT='${amount}', EMAIL='${email}', STATUS='${status}' where USEREMAILEMAIL='${email}'`;
+        for (const charge of chargeInfo) {
+            const { status, amount, id, email, name } = charge;
+            console.log(email);
+            const query = `UPDATE charges SET USERPAIDID='${id}', NAME='${name}', AMOUNT='${amount}', EMAIL='${email}', STATUS='${status}' where USEREMAILEMAIL='${email}'`;
 
-//             const values = [id, name, amount, email, status];
+            const values = [id, name, amount, email, status];
 
-//             let retryAttempts = 3;
-//             let currentAttempt = 0;
+            let retryAttempts = 3;
+            let currentAttempt = 0;
 
-//             while (currentAttempt < retryAttempts) {
-//                 try {
-//                     await new Promise((resolve, reject) => {
-//                         con.query(query, values, (error, results) => {
-//                             if (error) {
-//                                 reject(error);
-//                             } else {
-//                                 resolve();
-//                             }
-//                         });
-//                     });
-//                     console.log('Charge inserted');
-//                     break; // Exit the retry loop if successful
-//                 } catch (error) {
-//                     if (error.code === 'ETIMEDOUT') {
-//                         currentAttempt++;
-//                         await new Promise(resolve => setTimeout(resolve, 2000)); // Retry after 2 seconds
-//                     } else {
-//                         console.error('Error inserting charge:', error);
-//                         break; // Exit the retry loop if an unexpected error occurs
-//                     }
-//                 }
-//             }
-//         }
-//     } catch (error) {
-//         console.error('Error retrieving charges:', error);
-//     }
-//     setTimeout(retrieveAllCharges, 10000);
-// };
+            while (currentAttempt < retryAttempts) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        con.query(query, values, (error, results) => {
+                            if (error) {
+                                reject(error);
+                            } else {
+                                resolve();
+                            }
+                        });
+                    });
+                    console.log('Charge inserted');
+                    break; // Exit the retry loop if successful
+                } catch (error) {
+                    if (error.code === 'ETIMEDOUT') {
+                        currentAttempt++;
+                        await new Promise(resolve => setTimeout(resolve, 2000)); // Retry after 2 seconds
+                    } else {
+                        console.error('Error inserting charge:', error);
+                        break; // Exit the retry loop if an unexpected error occurs
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error retrieving charges:', error);
+    }
+    setTimeout(retrieveAllCharges, 10000);
+};
 
-// retrieveAllCharges();
+retrieveAllCharges();
 
 
 app.post('/EMAILBEFOREPAY', (req, res) => {
